@@ -19,6 +19,7 @@ package kafka
 import (
 	"fmt"
 	"os"
+	"time"
 	"unsafe"
 )
 
@@ -250,6 +251,11 @@ out:
 
 			for _, rkmessage := range rkmessages[:cnt] {
 				msg := h.newMessageFromC(rkmessage)
+				if fcMsg.ts != -1 {
+					ts := int64(fcMsg.ts)
+					msg.TimestampType = TimestampType(fcMsg.tstype)
+					msg.Timestamp = time.Unix(ts/1000, (ts%1000)*1000000)
+				}
 				var ch *chan Event
 
 				if rkmessage._private != nil {
